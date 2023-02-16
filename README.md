@@ -1,4 +1,4 @@
-# : A rust static site generator
+# 📝 Bloggy gobba
 
 This is a rust static site generator
 
@@ -22,6 +22,6 @@ markdown = "0.3"
 
 - generate output folder for images
 
-- refactor code
+- refacto code (if necessary)
 
 - upgrade with plugins for minifying, CSS
