@@ -23,16 +23,8 @@ fn main() {
     }
 }
 
-fn get_content_from_file(file_path: String) -> String {
-    println!("In file {}", file_path);
-    let contents = fs::read_to_string(file_path).expect("Should have been able to read the file");
-    println!("With text:\n{contents}");
-    contents
-}
-
 fn convert_to_html(file_path: String) {
     // Read content of the markdown file
-    // let file_path: String = format!("{}.md", file_name); // TOFIX: move out of fn
     let contents = fs::read_to_string(&file_path).expect("Should have been able to read the file");
     // convert md to html with crate 'markdown'
     let binding = markdown::to_html(contents.as_str());
@@ -59,22 +51,18 @@ fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
     let request_line = buf_reader.lines().next().unwrap().unwrap();
 
-    let file_name = String::from("myfile");
-    // let file_path: &str = "myfile.md";
-    let file_path: String = format!("{file_name}{}", ".md");
+    //TODO: let file_path: String = format!("{file_name}{}", ".md");
 
-    // println!("{:?}", list_of_md_files("./"));
-        
-    for path in list_of_md_files("./").unwrap() {
+    // loop over markdown files in docs directory  
+    for path in list_of_md_files("./docs").unwrap() {
         let path_string = path.into_os_string().into_string().unwrap();
         // get_content_from_file(path_string);
         convert_to_html(path_string);
     }
     
-
     let (status_line, filename) = match &request_line[..] {
         //  We need to explicitly match on a slice of request_line to pattern match against the string literal values; match doesn’t do automatic referencing and dereferencing like the equality method does.
-        "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"),
+        "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"), //TODO: display html page fron docs folder
         "GET /sleep HTTP/1.1" => {
             // simulate a long request
             thread::sleep(Duration::from_secs(5));
