@@ -60,7 +60,7 @@ fn handle_connection(mut stream: TcpStream) {
     let (status_line, filename) = match &request_line[..] {
         //  We need to explicitly match on a slice of request_line to pattern match against the string literal values; match doesn’t do automatic referencing and dereferencing like the equality method does.
         "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"),
-        "GET /blog/myfile HTTP/1.1" => ("HTTP/1.1 200 OK", "docs/myfile.md.html"), // go to http://localhost:7878/docs/myfile
+        "GET /blog/myfile HTTP/1.1" => ("HTTP/1.1 200 OK", "docs/myfile.md.html"), // go to http://localhost:7878/blog/myfile
         "GET /sleep HTTP/1.1" => {
             // simulate a long request
             thread::sleep(Duration::from_secs(5));
