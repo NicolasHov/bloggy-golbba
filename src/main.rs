@@ -1,16 +1,23 @@
 use static_site_generator::ThreadPool;
 use std::{
+    ffi::OsStr,
     fs,
     io::{prelude::*, BufReader},
     net::{TcpListener, TcpStream},
+    path::PathBuf,
     thread::{self},
     time::Duration,
-    path::PathBuf, ffi::OsStr 
 };
 
 extern crate markdown;
 
 fn main() {
+    // loop over markdown files in docs directory
+    for path in list_of_md_files("./docs").unwrap() {
+        let path_string = path.into_os_string().into_string().unwrap();
+        convert_to_html(path_string);
+    }
+
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
     let pool = ThreadPool::new(4); //create a new thread pool with a configurable number of threads instead `thread::spawn`
 
@@ -46,23 +53,14 @@ fn list_of_md_files(root: &str) -> std::io::Result<Vec<PathBuf>> {
     Ok(result)
 }
 
-
 fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
     let request_line = buf_reader.lines().next().unwrap().unwrap();
 
-    //TODO: let file_path: String = format!("{file_name}{}", ".md");
-
-    // loop over markdown files in docs directory  
-    for path in list_of_md_files("./docs").unwrap() {
-        let path_string = path.into_os_string().into_string().unwrap();
-        // get_content_from_file(path_string);
-        convert_to_html(path_string);
-    }
-    
     let (status_line, filename) = match &request_line[..] {
         //  We need to explicitly match on a slice of request_line to pattern match against the string literal values; match doesn’t do automatic referencing and dereferencing like the equality method does.
-        "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"), //TODO: display html page fron docs folder
+        "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"),
+        "GET /blog/myfile HTTP/1.1" => ("HTTP/1.1 200 OK", "docs/myfile.md.html"), // go to http://localhost:7878/docs/myfile
         "GET /sleep HTTP/1.1" => {
             // simulate a long request
             thread::sleep(Duration::from_secs(5));
