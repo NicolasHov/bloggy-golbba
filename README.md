@@ -1,4 +1,4 @@
-# 📝 Bloggy gobba
+# 📝 Bloggy golbba
 
 This is a rust static site generator
 
