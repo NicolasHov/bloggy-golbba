@@ -5,22 +5,24 @@ use std::{ffi::OsStr, fs, path::PathBuf};
 extern crate markdown;
 
 fn main() {
-    for file_path in list_of_md_files("../docs").unwrap() {
-        // println!("file dsada : {:?}", file_path); // not useful
-        // 1. read
-        let contents =
-            fs::read_to_string(&file_path).expect("Should have been able to read the file");
-        // 2. convert
-        let binding = markdown::to_html(contents.as_str()); // Convert .md to .html using crate 'markdown'
-        println!("{}", binding);
-        // 3. get file name
+    for file_path in list_of_md_files("../").unwrap() {
+        // println!("file dsada : {:?}", file_path); // debug
+        // get file name
         let filename = file_path.file_stem().unwrap().to_str().unwrap();
-        // 4. create new path (in directory  "/_site")
-        let mut new_entry = File::create(format!("../_site/{}.html", filename)).unwrap();
-        // 5. write html in new path :
-        new_entry
-            .write_all(binding.as_bytes())
-            .expect("Unable to write file");
+        if filename != "README" {
+            // read
+            let contents =
+                fs::read_to_string(&file_path).expect("Should have been able to read the file");
+            // convert
+            let binding = markdown::to_html(contents.as_str()); // Convert .md to .html using crate 'markdown'
+                                                                // println!("{}", binding); // debug
+                                                                // 4. create new path (in directory  "/_site")
+            let mut new_entry = File::create(format!("../_site/{}.html", filename)).unwrap();
+            // write html in new path :
+            new_entry
+                .write_all(binding.as_bytes())
+                .expect("Unable to write file");
+        }
     }
 }
 
