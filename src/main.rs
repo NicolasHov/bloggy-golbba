@@ -1,28 +1,35 @@
+use std::fs::File;
+use std::io::Write;
 use std::{ffi::OsStr, fs, path::PathBuf};
 
 extern crate markdown;
 
 fn main() {
-    for path in list_of_md_files("./docs").unwrap() {
-        let path_string = path.into_os_string().into_string().unwrap();
-        convert_to_html(path_string);
+    for file_path in list_of_md_files("../docs").unwrap() {
+        // println!("file dsada : {:?}", file_path); // not useful
+        // 1. read
+        let contents =
+            fs::read_to_string(&file_path).expect("Should have been able to read the file");
+        // 2. convert
+        let binding = markdown::to_html(contents.as_str()); // Convert .md to .html using crate 'markdown'
+        println!("{}", binding);
+        // 3. get file name
+        let filename = file_path.file_stem().unwrap().to_str().unwrap();
+        // 4. create new path (in directory  "/_site")
+        let mut new_entry = File::create(format!("../_site/{}.html", filename)).unwrap();
+        // 5. write html in new path :
+        new_entry
+            .write_all(binding.as_bytes())
+            .expect("Unable to write file");
     }
 }
 
 // Read content of the markdown file in /docs
-// convert md to html using crate 'markdown'
-// write html in new file in /docs
-fn convert_to_html(file_path: String) {
-    let contents = fs::read_to_string(&file_path).expect("Should have been able to read the file");
-    let binding = markdown::to_html(contents.as_str());
-    fs::write(format!("{}.html", &file_path), binding).expect("Unable to write file");
-}
-
 fn list_of_md_files(root: &str) -> std::io::Result<Vec<PathBuf>> {
     let mut result = vec![];
 
-    for path in fs::read_dir(root)? {
-        let path = path?.path();
+    for entry in fs::read_dir(root)? {
+        let path = entry?.path();
         if let Some("md") = path.extension().and_then(OsStr::to_str) {
             result.push(path.to_owned());
         }
