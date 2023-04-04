@@ -6,19 +6,17 @@ extern crate markdown;
 
 fn main() {
     for file_path in list_of_md_files("../").unwrap() {
-        // println!("file dsada : {:?}", file_path); // debug
-        // get file name
+        // get file name:
         let filename = file_path.file_stem().unwrap().to_str().unwrap();
         if filename != "README" {
-            // read
+            // read content:
             let contents =
                 fs::read_to_string(&file_path).expect("Should have been able to read the file");
-            // convert
+            // convert to HTML:
             let binding = markdown::to_html(contents.as_str()); // Convert .md to .html using crate 'markdown'
-                                                                // println!("{}", binding); // debug
-                                                                // 4. create new path (in directory  "/_site")
+            // create new path (in directory  "/_site"):
             let mut new_entry = File::create(format!("../_site/{}.html", filename)).unwrap();
-            // write html in new path :
+            // write file in new path:
             new_entry
                 .write_all(binding.as_bytes())
                 .expect("Unable to write file");
